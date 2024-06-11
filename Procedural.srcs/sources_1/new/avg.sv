@@ -1,21 +1,20 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+// Company: LEMZ-T
+// Engineer: Vadim V. Hvatov
 // 
 // Create Date: 06/05/2024 12:59:57 PM
-// Design Name: 
 // Module Name: avg
-// Project Name: 
-// Target Devices: 
+// Project Name: Procedural
+// Target Devices: 7Series+
 // Tool Versions: 
-// Description: 
+// Description: Calculate Averange size of datapack
 // 
-// Dependencies: 
+// Dependencies: divider.sv
 // 
 // Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
+// Revision 0.11 - Calculating averange
+// Additional Comments: TODO reset flag
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -32,11 +31,12 @@ module avg#(
         output logic                    o_valid     = '0,
         output logic [G_BIT_WIDTH-1:0]  o_avg_data  = '0
     );
-    
+
+// For Averange    
     logic   [G_BIT_WIDTH-1:0]   q_sum_buf       = '0;
     logic   [G_BIT_WIDTH-1:0]   q_data_cnt      = '0;
-    logic                       q_last          = '0;
-    
+
+// For Divider    
     logic                       q_div_vld       = '0;
     logic   [G_BIT_WIDTH-1:0]   q_div_res_dat   = '0;
     logic                       q_div_rdy       = '0;
@@ -47,24 +47,12 @@ module avg#(
     always_ff @(i_clk) begin : averange
         
         if (i_valid) begin
-            
             q_sum_buf  <= q_sum_buf + i_data;
             q_data_cnt <= q_data_cnt + 1;
-
-            if (i_last) begin
-                q_last      <= '1;
-                o_avg_data  <= '0;
-            end
         end
         
-        if(q_last) begin
-            //o_avg_data  <= q_sum_buf / q_data_cnt;
-            if (q_div_rdy) begin
-                q_div_vld   <= '1;
-                q_last      <= '0;  
-            end
-                
-            //o_valid     <= '1;
+        if(i_last) begin
+            q_div_vld   <= (q_div_rdy) ? '1 : '0; 
         end
 
         if (q_div_res_vld) begin
