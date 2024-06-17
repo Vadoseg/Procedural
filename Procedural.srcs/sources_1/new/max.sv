@@ -47,14 +47,18 @@ module max#(
     logic                   w_max_check     = '0;   // Variable to check the maximum
     logic                   w_last          = '0;
 
-    always_ff @(i_clk) begin : maximum
+    always_comb begin : catchlast
+        q_last      <= (i_last) ? 1 : 0;
+    end
+    
+    always_ff @(posedge i_clk) begin : maximum
         
         if (i_valid) begin  // Original valid
             
             q_valid     <= i_valid;
             q_data      <= i_data;     
 
-            q_last      <= (i_last) ? 1 : 0;
+            
         end
         
 
@@ -67,7 +71,7 @@ module max#(
             if (q_last) begin   // First delayed Last
                 q_data      <= '0;
                 q_valid     <= '0;
-                q_last      <= '0;
+                //q_last      <= '0;
 
                 q_last_2    <= '1;
             end

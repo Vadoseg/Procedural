@@ -27,12 +27,16 @@ module tb_max#(
 
     );
 
-    localparam T_CLK = 1.0;
-    logic i_clk = '0;
-    logic i_rst = '0;
-    logic [G_BIT_WIDTH-1:0] i_data = '0;
-    logic i_valid = '0;
-    logic i_last  = '0;
+    localparam       T_CLK       = 1.0;
+    logic   [7:0]    q_cnt       = '0;
+    logic   [7:0]    q_data_cnt  = '0;
+    logic   [7:0]    i = '0;
+
+    logic                   i_clk   = '0;
+    logic                   i_rst   = '0;
+    logic      [7:0]        i_data  = '0;
+    logic                   i_valid = '0;
+    logic                   i_last  = '0;
 
     task send_data_pkt;
         begin
@@ -81,11 +85,51 @@ module tb_max#(
 
     always#(T_CLK/2.0) i_clk <= ~i_clk;
 
+    task data_4;
+        begin
+            if (q_cnt == 4 && q_data_cnt < 10) begin
+                i_valid     <= '1;
+                i_data      <= i;
+                q_data_cnt  <= q_data_cnt + 1;
+                i <= i + 1;
 
-    initial begin
-        send_data_pkt;
-        #(T_CLK * 5);
-        send_max_check;
+            end
+            else begin
+                i_valid     <= '0;
+
+            end
+
+            if (q_data_cnt >= 10) begin
+                i_data      <= '0;
+        
+            end
+        end
+    endtask 
+    
+    always_ff@(posedge i_clk) begin
+        if (q_cnt < 4) begin
+            q_data_cnt  <= q_data_cnt + 1;
+            i           <= i + 1;
+            q_cnt       <= q_cnt + 1;
+        end
+        if (q_data_cnt < 20 && q_cnt == 4) begin
+            i_valid     <= '1;
+            i_data      <=  i;
+            q_cnt       <= '0;
+
+        end
+
+        if (q_data_cnt >= 20) begin
+            i_data      <= '0;
+            i_last      <= '1;
+            q_data_cnt  <= '0;
+            i           <= '0;
+            i_valid     <= '0;
+        end
+
+        if (i_last) begin
+            i_last      <= '0;
+        end
     end
 
     max#(
