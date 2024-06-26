@@ -40,7 +40,7 @@ task t_pkt;
 			#(dt);
 			i_valid = '0;
 			i_last  = '0;
-			#(3 * dt);
+			// #(3 * dt);
 		end
 	end
 endtask : t_pkt
