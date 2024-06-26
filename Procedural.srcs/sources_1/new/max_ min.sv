@@ -21,16 +21,19 @@
 
 module max_min#(
         parameter bit G_OPER_MODE   = '1,   // Operating mode: min = 0, max = 1
-        parameter int G_BIT_WIDTH   =  8    // data bit width
+        parameter int G_BIT_WIDTH   =  16,    // data bit width
+        parameter int G_INDX_WIDTH  =  8,
+        parameter int G_CNT_WIDTH   =  8
     )(
-        input wire                     i_clk  ,
-        input wire                     i_rst  ,
-        input wire [G_BIT_WIDTH-1:0]   i_data ,
-        input wire                     i_valid,
-        input wire                     i_last ,
+        input wire                      i_clk  ,
+        input wire                      i_rst  ,
+        input wire   [G_BIT_WIDTH-1:0]  i_data ,
+        input wire                      i_valid,
+        input wire                      i_last ,
 
         output logic                    o_valid     = '0,
-        output logic [G_BIT_WIDTH-1:0]  o_res_data  = '0
+        output logic [G_BIT_WIDTH-1:0 ] o_res_data  = '0,
+        output logic [G_INDX_WIDTH-1:0] o_indx_data = '0
     );
 
     localparam bit [G_BIT_WIDTH-1:0] C_RES_INIT =  {1'b1, {G_BIT_WIDTH-1{1'b0}}} ^ ~{G_BIT_WIDTH{G_OPER_MODE}};
@@ -50,6 +53,9 @@ module max_min#(
     reg signed [G_BIT_WIDTH-1:0] q_buf       = C_RES_INIT;
     reg                          w_last      = '0;
 
+    logic      [G_CNT_WIDTH-1:0] q_data_cnt       = '0;
+    reg        [G_CNT_WIDTH-1:0] q_cnt_buf        = '0;
+
     always_ff @(posedge i_clk) begin : maximum
         
         q_last      <= i_last;
@@ -67,19 +73,28 @@ module max_min#(
             q_data_diff     <=  q_buf - q_data;
             q_data_2        <=  q_data;
 
-
         end
 
         w_last      <= q_last_2;  
-        if (w_last)
-            q_buf   <= C_RES_INIT;
+        if (w_last) begin
+            q_buf       <= C_RES_INIT;
+            q_data_cnt  <= '0;
+            q_cnt_buf   <= '0;
+        end
         else if (q_valid_2) begin    // Second delayed valid
-            q_buf   <= (q_data_diff[G_BIT_WIDTH-1] ^ ~G_OPER_MODE) ? q_data_2 : q_buf;
+            q_data_cnt <= q_data_cnt + 1;
+            
+            if (q_data_diff[G_BIT_WIDTH-1] ^ ~G_OPER_MODE) begin
+                q_buf       <= q_data_2;
+                q_cnt_buf   <= q_data_cnt + 1;
+
+            end;
         end
 
         o_valid     <= w_last;
         if (w_last) begin   // Final delayed Last
             o_res_data      <= q_buf;
+            o_indx_data     <= q_cnt_buf;
         end
 
     end
