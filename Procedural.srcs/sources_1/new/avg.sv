@@ -20,7 +20,7 @@
 
 
 module avg#(
-        parameter int G_BIT_WIDTH   = 8
+        parameter int G_BIT_WIDTH   = 16
     )(
         input logic                     i_clk,
         input logic                     i_rst,
@@ -44,7 +44,7 @@ module avg#(
     logic                       q_div_res_dat   = '0;
 
 
-    always_ff @(i_clk) begin : averange
+    always_ff @(posedge i_clk) begin : averange
         
         if (i_valid) begin
             q_sum_buf  <= q_sum_buf + i_data;
@@ -75,7 +75,7 @@ module avg#(
     divider #(
         .ROUNDING   ('1),
         // .USE_RESET  ('1),
-        .RES_W      ( 8)
+        .RES_W          (G_BIT_WIDTH   )
     ) DIVIDER (
         .i_div_a_clk_p  (i_clk         ),
         // .i_div_s_rst_p  (i_rst),
