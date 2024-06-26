@@ -28,3 +28,5 @@
 **/*.svg
 # **/*.txt
 
+Procedural.srcs/find_max.sv
+Procedural.srcs/tb_find_max.sv
