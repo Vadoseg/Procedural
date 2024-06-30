@@ -54,6 +54,7 @@ task t_init;
 		i_last  	= '0;
 		i_data  	= '0;
 		ar_valid	= '0;
+		r_ready		= '0;
 	end
 endtask : t_init
 
