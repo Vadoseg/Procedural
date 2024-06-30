@@ -41,7 +41,7 @@ module avg#(
     logic   [G_BIT_WIDTH-1:0]   q_div_res_dat   = '0;
     logic                       q_div_rdy       = '0;
     logic                       q_div_res_vld   = '0;
-    logic                       q_div_res_dat   = '0;
+//    logic                       q_div_res_dat   = '0;
 
 
     always_ff @(posedge i_clk) begin : averange
@@ -65,7 +65,7 @@ module avg#(
             q_sum_buf   <= '0;
             q_data_cnt  <= '0;
             o_valid     <= '0;
-            o_avg_data  <= '0;
+            // o_avg_data  <= '0;
         end
         
     end : averange
