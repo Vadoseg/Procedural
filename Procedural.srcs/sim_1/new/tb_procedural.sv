@@ -21,10 +21,9 @@
 
 
 module tb_procedural#(
-	bit OPMODE = '1,  // operating mode: 0 = min, 1 = max
-	int DW     =  16, // data bit width
+	int DW     =  32, // data bit width
 	parameter int G_ADDR_WIDTH  	= 5,
-	parameter int G_INDX_WIDTH  	= 8,
+	parameter int G_INDX_WIDTH  	= 10,
 	localparam int G_DW_WIRE_MEM    = DW + G_INDX_WIDTH,
 	parameter int G_MODS            = 4,
 
@@ -33,7 +32,7 @@ module tb_procedural#(
 
 );
 
-logic i_clk = '0;
+logic i_clk = '0, i_rst = '0;
 
 always #(dt/2.0) i_clk = ~i_clk; // simulate clock
 
@@ -101,38 +100,51 @@ task files_pkt;
 	end
 endtask : files_pkt
 
-
-// simulate input data
-initial begin
-	t_init; #(10 * dt);
-	
-	files_pkt;
-	files_pkt;
-	files_pkt;
-
-	
-	#(dt*160);
+task addr_read;
 	ar_valid		<= '1;
 	r_ready			<= '1;
 	
-	for (int i = 0; i < 256; i += 16) begin		// Found step by experiments, needed explanation
+	for (int i = 0; i < 256; i += 8) begin		// Found step by experiments, needed explanation
 		ar_addr	= i;
-		#(dt);
+		#(dt*8);
 	end	
+endtask	: addr_read
+
+// simulate input data
+initial begin
+	t_init; #(10.6 * dt);
+	i_rst	<= '1;
+
+	files_pkt;
+	files_pkt;
+	files_pkt;
+
+	addr_read;
+	// i_rst	<= '0;
+	#(dt);
+	files_pkt;
+	files_pkt;
+	files_pkt;
+	files_pkt;
+	files_pkt;
+
+	addr_read;
 end
 
 	procedural #(
-		.G_ADDR_WIDTH	(G_ADDR_WIDTH)
+		// .G_ADDR_WIDTH	(G_ADDR_WIDTH)
 
 	) u_uut_procedural (
-		.i_clk          (i_clk   ),
-		.i_valid        (i_valid ),
-		.i_last         (i_last  ),
-		.i_data_fft     (i_data  ),
+		.i_clk          	(i_clk   ),
+		.i_rst_n			(i_rst   ),
 
-		.i_arvalid		(ar_valid),
-		.i_araddr		(ar_addr ),
-		.i_rready		(r_ready )
+		.s_tvalid       	(i_valid ),
+		.s_tlast        	(i_last  ),
+		.s_tdata     		(i_data  ),
+
+		.s_axil_arvalid		(ar_valid),
+		.s_axil_araddr		(ar_addr ),
+		.s_axil_rready		(r_ready )
 	);
 
 endmodule : tb_procedural

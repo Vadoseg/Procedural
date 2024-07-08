@@ -29,18 +29,8 @@ module mem#(
         input   wire                        i_wr_valid,     // Valid for input writing
         input   wire   [G_DATA_WIDTH-1:0]   i_wr_data,      // Input Writing data
         input   wire                        i_rd_valid,     // Valid for output reading
-        // input wire i_mem_ready
 
-        output  bit                         o_ar_valid  = '0,
-        output  logic  [G_DATA_WIDTH-1:0]   o_rd_data   = '0    // Output reading data
-
-
-        /* // Master
-        input  reg  s_axil_awready,  output   wire s_axil_awvalid,  reg [G_ADDR_W - 1 : 0]  s_axil_awaddr,   logic  [2 : 0]             s_axil_awprot,          //  write addr
-        input  reg  s_axil_wready,   output   wire s_axil_wvalid,   reg [G_DATA_W - 1 : 0]  s_axil_wdata,    reg    [G_DATA_B - 1 : 0]  s_axil_wstrb,           //  write data 
-        output   wire s_axil_bready,   input  reg  s_axil_bvalid,   reg [1 : 0]             s_axil_bresp,                                                       //  write resp 
-        input  reg  s_axil_arready,  output   wire s_axil_arvalid,  reg [G_ADDR_W - 1 : 0]  s_axil_araddr,   logic  [2 : 0]             s_axil_arprot,          //  read addr 
-        output   wire s_axil_rready,  input  reg  s_axil_rvalid,   reg [G_DATA_W - 1 : 0]  s_axil_rdata,    reg    [1 : 0]             s_axil_rresp           //  read data & resp */
+        output  logic  [G_DATA_WIDTH-1:0]   o_rd_data       // Output reading data
 
     );
 
@@ -65,6 +55,5 @@ module mem#(
         end
         
         o_rd_data       <=  q_mem[q_r_addr];
-        o_ar_valid      <= '1;
     end
 endmodule

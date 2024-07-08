@@ -21,19 +21,18 @@
 
 module max_min#(
         parameter bit G_OPER_MODE   = '1,   // Operating mode: min = 0, max = 1
-        parameter int G_BIT_WIDTH   =  16,    // data bit width
+        parameter int G_BIT_WIDTH   =  32,    // data bit width
         parameter int G_INDX_WIDTH  =  8,
         parameter int G_CNT_WIDTH   =  8
     )(
         input wire                      i_clk  ,
-        input wire                      i_rst  ,
         input wire   [G_BIT_WIDTH-1:0]  i_data ,
         input wire                      i_valid,
         input wire                      i_last ,
 
-        output logic                    o_valid     = '0,
-        output logic [G_BIT_WIDTH-1:0 ] o_res_data  = '0,
-        output logic [G_INDX_WIDTH-1:0] o_indx_data = '0
+        output logic                    o_valid,
+        output logic [G_BIT_WIDTH-1:0 ] o_res_data,
+        output logic [G_INDX_WIDTH-1:0] o_indx_data
     );
 
     localparam bit [G_BIT_WIDTH-1:0] C_RES_INIT =  {1'b1, {G_BIT_WIDTH-1{1'b0}}} ^ ~{G_BIT_WIDTH{G_OPER_MODE}};

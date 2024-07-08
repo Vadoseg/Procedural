@@ -20,16 +20,15 @@
 
 
 module avg#(
-        parameter int G_BIT_WIDTH   = 16
+        parameter int G_BIT_WIDTH   = 32
     )(
         input logic                     i_clk,
-        input logic                     i_rst,
         input logic [G_BIT_WIDTH-1:0]   i_data,
         input logic                     i_valid,
         input logic                     i_last,
 
-        output logic                    o_valid     = '0,
-        output logic [G_BIT_WIDTH-1:0]  o_avg_data  = '0
+        output logic                    o_valid,
+        output logic [G_BIT_WIDTH-1:0]  o_avg_data
     );
 
 // For Averange    
@@ -38,12 +37,12 @@ module avg#(
 
 // For Divider    
     logic                       q_div_vld       = '0;
-    logic   [G_BIT_WIDTH-1:0]   q_div_res_dat   = '0;
-    logic                       q_div_rdy       = '0;
-    logic                       q_div_res_vld   = '0;
+    logic   [G_BIT_WIDTH-1:0]   q_div_res_dat;
+    logic                       q_div_rdy;
+    logic                       q_div_res_vld;
 //    logic                       q_div_res_dat   = '0;
 
-
+    
     always_ff @(posedge i_clk) begin : averange
         
         if (i_valid) begin
@@ -51,21 +50,17 @@ module avg#(
             q_data_cnt <= q_data_cnt + 1;
         end
         
-        if(i_last) begin
-            q_div_vld   <= (q_div_rdy) ? '1 : '0; 
-        end
+        q_div_vld   <=  i_last;
 
         if (q_div_res_vld) begin
             o_avg_data  <= q_div_res_dat;
             o_valid     <= '1;
-            q_div_vld   <= '0;
         end
         
         if (o_valid) begin
             q_sum_buf   <= '0;
             q_data_cnt  <= '0;
             o_valid     <= '0;
-            // o_avg_data  <= '0;
         end
         
     end : averange
@@ -74,11 +69,11 @@ module avg#(
 
     divider #(
         .ROUNDING   ('1),
-        // .USE_RESET  ('1),
-        .RES_W          (G_BIT_WIDTH   )
+        .RES_W          (G_BIT_WIDTH   ),
+        .DVD_W          (G_BIT_WIDTH   ),
+        .DVR_W          (G_BIT_WIDTH   )
     ) DIVIDER (
         .i_div_a_clk_p  (i_clk         ),
-        // .i_div_s_rst_p  (i_rst),
 
         .i_div_dat_vld  (q_div_vld     ),
         .i_div_dvd_dat  (q_sum_buf     ),
